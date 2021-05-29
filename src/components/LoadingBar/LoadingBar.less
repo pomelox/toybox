@@ -1,0 +1,36 @@
+@duration: 350ms;
+
+.loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  transition: @duration linear all;
+  opacity: 1;
+  pointer-events: none;
+  z-index: 10000;
+
+  &.load-complete {
+    opacity: 0;
+  }
+
+  .bar {
+    transition: width @duration;
+    position: fixed;
+    z-index: 10002;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    border-bottom-right-radius: 1px;
+    border-top-right-radius: 1px;
+  }
+
+  .peg {
+    position: absolute;
+    width: 70px;
+    right: 0;
+    top: 0;
+    height: 3px;
+    opacity: .45;
+    border-radius: 100%;
+  }
+}
