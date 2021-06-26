@@ -49,7 +49,7 @@ const getRandomOp = () => {
 
 const getTenDigit = (num: number) => {
   return Math.floor(num/10)%10;
-}
+};
 
 const getMathItem: (num0: number, op: OpEnum, numAfter: number) => MathItem = (num0, op, numAfter) => {
   let result: number;
@@ -74,33 +74,49 @@ const getMathItem: (num0: number, op: OpEnum, numAfter: number) => MathItem = (n
     result,
     flag,
   };
-}
+};
 
-const genMathList = (num: number, max = 100, cond = 'mix') => {
+const checkCond = (item: MathItem, min: number, max: number, cond: CondEnum) => {
+  if (!item) {
+    return false;
+  }
+  const biggest = Math.max(item.num0, item.numAfter, item.result);
+  if (biggest < min || biggest > max) {
+    return false;
+  }
+  if (cond === CondEnum.Simple && item.flag !== FlagEnum.Normal) {
+    return false;
+  }
+  if (cond === CondEnum.Hard && item.flag === FlagEnum.Normal) {
+    return false;
+  }
+  return true;
+};
+
+const genMathList = (num: number, min = 20, max = 100, cond = CondEnum.Mix) => {
   const list: MathItem[] = [];
   let count = 0;
   let specItem: MathItem;
-  if (cond !== CondEnum.Simple && num >= 20 && max >= 100) {
+  if (num >= 20 && max >= 100) {
     // 一定有一题和是max
     const num0 = getRandomIntInRange(10, max - 10);
     const op = OpEnum.Plus;
     const numAfter = max - num0;
-    specItem = getMathItem(num0, op, numAfter);
-    count++;
+    const item = getMathItem(num0, op, numAfter);
+    if (checkCond(item, min, max, cond)) {
+      specItem = item;
+      count++;
+    }
   }
   while (count < num) {
     const num0 = getRandomInt(max);
     const op = getRandomOp();
     const numAfter = getRandomInt(op === OpEnum.Minus ? num0 : (max - num0));
     const item = getMathItem(num0, op, numAfter);
-    if (cond === CondEnum.Simple && item.flag !== FlagEnum.Normal) {
-      continue;
+    if (checkCond(item, min, max, cond)) {
+      list.push(item);
+      count++;
     }
-    if (cond === CondEnum.Hard && item.flag === FlagEnum.Normal) {
-      continue;
-    }
-    list.push(item);
-    count++;
   }
   if (specItem) {
     // 随机找个位置
@@ -111,6 +127,7 @@ const genMathList = (num: number, max = 100, cond = 'mix') => {
 };
 
 export default wrapPage(() => {
+  const min = 20;
   const max = 100;
   const num = 20;
 
@@ -119,14 +136,10 @@ export default wrapPage(() => {
   const [showResult, setShowResult] = useState(false);
 
   const refresh = (cond: string) => {
-    const list = genMathList(num, max, cond);
+    const list = genMathList(num, min, max, cond);
     setMathTitle(condMap[cond] || '');
     setMathList(list);
     setShowResult(false);
-  };
-
-  const calc = (item: MathItem) => {
-    // 显示答案？
   };
 
   return (
@@ -156,7 +169,7 @@ export default wrapPage(() => {
                 key={index}
                 title={`(${index + 1})　　${item.num0} ${item.op} ${item.numAfter} =`}
                 // note={item.flag || ''}
-                extraText={showResult ? item.result : '　'}
+                extraText={showResult ? String(item.result) : '　'}
               />
             ))}
           </AtList>

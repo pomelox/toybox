@@ -1,7 +1,7 @@
 import path from 'path';
 
 const config = {
-  projectName: 'taro-demo',
+  projectName: 'toybox',
   date: '2021-01-01',
   designWidth: 750,
   deviceRatio: {
